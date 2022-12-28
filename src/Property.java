@@ -22,6 +22,21 @@ public class Property {
         this.sellerName = sellerName;
     }
 
+    @Override
+    public String toString() {
+        return "Property{" +
+                "city='" + city + '\'' +
+                ", street='" + street + '\'' +
+                ", numberOfRooms=" + numberOfRooms +
+                ", price=" + price +
+                ", buildingType='" + buildingType + '\'' +
+                ", isRentable=" + isRentable +
+                ", houseNumber=" + houseNumber +
+                ", floorNumber=" + floorNumber +
+                ", sellerName=" + sellerName +
+                '}';
+    }
+
     public String getCity() {
         return city;
     }

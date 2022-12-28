@@ -203,13 +203,14 @@ public class RealEstate {
 
     public void menuProperty(User user) {
         Scanner scanner = new Scanner(System.in);
-        System.out.println("You can continue to choose from the following list:");
-        System.out.println("1.Post a new property.");
-        System.out.println("2.Remove advertising on a property.");
-        System.out.println("3.show all the properties in the system.");
-        System.out.println("4.View all my properties.");
-        System.out.println("5.Search for a property by parameter.");
-        System.out.println("6.Disconnect and return to the main menu.");
+        System.out.println("You can continue to choose from the following list:\n" +
+                "1.Post a new property.\n" +
+                "2.Remove advertising on a property.\n" +
+                "3.show all the properties in the system.\n" +
+                "4.View all my properties.\n" +
+                "5.Search for a property by parameter.\n" +
+                "6.Disconnect and return to the main menu.");
+
         int newChoice;
         do {
             newChoice = scanner.nextInt();
@@ -223,9 +224,9 @@ public class RealEstate {
                 case 3 -> printAllProperties();
                 case 4 -> printProperties(user);
                 case 5 -> search();
-                case 6 -> System.out.println("Your are log out.");
+                case 6 -> System.out.println("Back to the main menu"); // צריך לגרום לפונקציה לצאת מהתוכנית, לוודא אם זה יוצא וחוזר לתפריט החוזר
             }
-        } while (newChoice < 1 && newChoice > 6);
+        } while (newChoice < 1 || newChoice > 6);
     }
 
 
@@ -255,16 +256,17 @@ public class RealEstate {
                 boolean currectStreet = checkStreets(city);
                 if (!currectStreet) {
                     System.out.println("The street you gave is not on the available streets");
+                    checkAllowPost = false;
                 } else {
-
+                    propertyType(user, city);
                 }
 
-                }
             }
-
         }
 
     }
+
+}
 
     public int checkCity() {
         Scanner scanner = new Scanner(System.in);
@@ -303,7 +305,8 @@ public class RealEstate {
         }
         return checkStreet;
     }
-    public void propertyType() {
+
+    public void propertyType(User user, int city) {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Press 1 for normal apartment in the building\n" +
                 "Press 2 for Penthouse in the building\n" +
@@ -313,14 +316,15 @@ public class RealEstate {
         if (userChoice >= 1 && userChoice <= 3) {
             validCheck = true;
             switch (userChoice) {
-                case 1 -> buildingApartment(this.cities[]);
-            }else{
-                //return valid check = false
+                case 1 -> buildingApartment(user, city);
+                case 2 -> System.out.println("You chose penthouse, will be added on our next program");
+                case 3 -> System.out.println("You chose private house, will be added on our next program");
             }
         }
     }
-    public boolean buildingApartment(int city) {
-    Scanner scanner = new Scanner(System.in);
+
+    public boolean buildingApartment(User user, int city) {
+        Scanner scanner = new Scanner(System.in);
         System.out.println("What floor is the property on?");
         int floor = scanner.nextInt();
         System.out.println("How many rooms are in the property?");
@@ -333,23 +337,95 @@ public class RealEstate {
             System.out.println("Press 1 if the building is for rent\t" +
                     "press 2 if the building is for sale");
             rentOrSaleInt = scanner.nextInt();
-            if(rentOrSaleInt == 1) {
+            if (rentOrSaleInt == 1) {
                 rentOrSale = true;
-            }if(rentOrSaleInt == 2) {
+            }
+            if (rentOrSaleInt == 2) {
                 rentOrSale = false;
             }
-        } while (rentOrSaleInt!=1 && rentOrSaleInt!=2);
+        } while (rentOrSaleInt != 1 && rentOrSaleInt != 2);
         System.out.println("What is the price for the property?");
         int price = scanner.nextInt();
-        Property property1 = new Property(this.cities[city], nameStreet, room, price, "normal apartment", checkRent, homeNumber, floor, user);
+        boolean ifCreated = false;
+        Property property1 = new Property(this.cities[city].getName(), this.cities[city].getAvailableStreets(), room, price, "Normal Apartment", rentOrSale, homeNumber, floor, user);
         for (int j = 0; j < this.properties.length; j++) {
             if (properties[j] == null) {
-                properties[j] = propery1;
+                properties[j] = property1;
+                ifCreated = true;
                 break;
             }
         }
+        if (ifCreated) {
+            System.out.println("The property saved");
+        } else {
+            System.out.println("The property did not assign to the system");
+        }
+        return ifCreated;
     }
-}
+
+    public void removeProperty(User user) {
+        final int MAX_PROPERTY = 5;
+        Scanner scanner = new Scanner(System.in);
+        int counter = 0;
+        Property[] propertyLocation = new Property[MAX_PROPERTY];
+        for (int i = 0; i < properties.length; i++) {
+            if (properties[i] != null && properties[i].getSellerName() == user) {
+                propertyLocation[counter] = properties[i];
+                counter++;
+            }
+        }
+        if (counter == 0) {
+            System.out.println("You have no properties to remove");
+        } else {
+            System.out.println("Those are your properties:");
+            for (int t = 0, count = 1; t < propertyLocation.length; t++) {
+                if (propertyLocation[t] != null) {
+                    System.out.println(count + " " + propertyLocation[t]);
+                    count++;
+                }
+            }
+            int remove;
+            do {
+                System.out.println("Select the number you want to remove");
+                remove = scanner.nextInt();
+            } while (remove >= counter || remove <= 0);
+            remove -= 1;
+            boolean removed = false;
+            for (int j = 0; j < properties.length; j++) {
+                if (properties[j] == propertyLocation[remove]) {
+                    properties[j] = null;
+                    removed = true;
+                    break;
+                }
+            }
+            if (removed) System.out.println("The removal was successful");
+        }
+
+    }
+
+    private void printAllProperties() {
+        int counter = 1;
+        for (int i = 0; i < properties.length; i++) {
+            if (properties[i] != null) {
+                System.out.println(counter + ") " + properties[i]);
+                counter++;
+            }
+        }
+    }
+
+    private void printProperties(User user) {
+        int counter = 1;
+        for (int i = 0; i < properties.length; i++) {
+            if (properties[i] != null && properties[i].getSellerName() == user) {
+                System.out.println(counter + ") " + properties[i]);
+                counter++;
+            }
+
+        }
+    }
+
 
 }
+
+
 
